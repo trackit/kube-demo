@@ -1,0 +1,58 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: prepare-db
+spec:
+  template:
+    spec:
+      containers:
+        - name: prepare-db
+          image: postgres:14
+          env:
+            # Env var for psql command line
+            - name: PGHOST
+              value: db
+            - name: PGUSER
+              value: postgres
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: root-password
+                  name: db-secret
+            # Env var for table/user creation
+            - name: DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  key: username
+                  name: db-config
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: app-user-password
+                  name: db-secret
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: db-name
+                  name: db-config
+          command:
+            - sh
+            - -c
+            - >
+              echo "CREATE DATABASE $DB_NAME;
+              CREATE USER $DB_USER WITH ENCRYPTED PASSWORD '$DB_PASSWORD';
+              GRANT ALL PRIVILEGES ON DATABASE $DB_NAME to $DB_USER;" | psql;
+              
+              echo "CREATE TABLE users
+              (
+                  id          varchar not null constraint users_pk primary key,
+                  email       varchar not null,
+                  password    varchar not null,
+                  created_at  date    not null,
+                  updated_at  date    not null
+              );
+              CREATE UNIQUE INDEX users_email_uindex ON users (email);
+              CREATE UNIQUE INDEX users_id_uindex ON users (id);" |
+              PGPASSWORD=$DB_PASSWORD psql -U $DB_USER $DB_NAME
+      restartPolicy: Never
+  ttlSecondsAfterFinished: 3600
