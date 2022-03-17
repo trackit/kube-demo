@@ -45,14 +45,15 @@ spec:
               
               echo "CREATE TABLE users
               (
-                  id          varchar not null constraint users_pk primary key,
-                  email       varchar not null,
-                  password    varchar not null,
-                  created_at  date    not null,
-                  updated_at  date    not null
+                  id          varchar     not null constraint users_pk primary key,
+                  email       varchar     not null,
+                  password    varchar     not null,
+                  created_at  timestamp   not null,
+                  updated_at  timestamp   not null
               );
               CREATE UNIQUE INDEX users_email_uindex ON users (email);
-              CREATE UNIQUE INDEX users_id_uindex ON users (id);" |
+              CREATE UNIQUE INDEX users_id_uindex ON users (id);
+              CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";" |
               PGPASSWORD=$DB_PASSWORD psql -U $DB_USER $DB_NAME
       restartPolicy: Never
   ttlSecondsAfterFinished: 3600
