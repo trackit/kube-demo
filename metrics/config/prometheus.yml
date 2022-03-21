@@ -1,0 +1,11 @@
+server:
+  global:
+    scrape_interval: 15s
+    scrape_timeout: 10s
+  persistentVolume:
+    size: 100Mi
+  retention: 10d
+alertmanager:
+  enabled: false
+pushgateway:
+  enabled: false

@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+  labels:
+    app: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /metrics
+        prometheus.io/port: "3000"
+      labels:
+        app: app
+    spec:
+      containers:
+        - name: app-node
+          image: arthurknoep/kube-demo-node-app:latest
+          ports:
+            - containerPort: 3000
+              name: 'http'
+          env:
+            - name: FILENAME
+              value: '/mnt/file.txt'
+          resources:
+            limits:
+              memory: 500Mi
+              cpu: 1000m
+            requests:
+              memory: 100Mi
+              cpu: 200m
+          volumeMounts:
+            - name: file-storage
+              mountPath: /mnt
+      volumes:
+        - name: file-storage
+          persistentVolumeClaim:
+            claimName: app-pvc
