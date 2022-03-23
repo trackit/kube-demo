@@ -24,7 +24,6 @@ router.put('/', (req, res) => {
   if (!req.body.message) {
     return res.status(400).json({ message: 'Invalid request, missing message' });
   }
-  console.log(req.body);
   fs.writeFile(process.env.FILENAME, new Uint8Array(Buffer.from(req.body.message)), (err) => {
     if (err) {
       return res.status(500).json({ message: err.toString() || 'An unexpected error happened' });
