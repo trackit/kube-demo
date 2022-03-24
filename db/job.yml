@@ -11,9 +11,9 @@ spec:
           env:
             # Env var for psql command line
             - name: PGHOST
-              value: db
+              value: 'db'
             - name: PGUSER
-              value: postgres
+              value: 'postgres'
             - name: PGPASSWORD
               valueFrom:
                 secretKeyRef:
